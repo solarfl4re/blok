@@ -4,7 +4,7 @@ A simple static site generator for Pythonista + Editorial: write in Editorial an
 **How it works**
 
 1. In `build_site()`, each post is read, converted to html, and then added to an html template and written to the output directory.
-* If in `posts/` there's a post `03-05-2015-test-post.markdown`, it will be wriiten to `$OUTPUT_DIR/test-post/index.html'.
+> If in `posts/` there's a post `03-05-2015-test-post.markdown`, it will be wriiten to `$OUTPUT_DIR/test-post/index.html'.
 2. After the posts are written, a link is added for each post in the main index.html. For the test post above, the link would be `/test-post/`. This gives nice links with no '.html' on the end.
 
 **Editorial workflows**:
