@@ -81,7 +81,7 @@ def get_metadata(line, prefix):
     line = ' '.join(line.split()[1:])
     # We don't want an empty string
     if line:
-    return line
+      return line
   return False
 
 def get_post_dict(post):
