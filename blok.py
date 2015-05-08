@@ -1,4 +1,6 @@
-#coding: utf-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 # Python imports
 from datetime import datetime
@@ -23,86 +25,65 @@ class blog_post():
     self.title = title
     self.content = content
     self.slug = slug
-    
     self.has_hour = False
-    if date:
-      self.date = self._parse_date(date)
-    else:
-      self.date = datetime.today()
+    self.date = self._parse_date(date) if date else datetime.today()
 
-  def _parse_date(self, date):
+  def _parse_date(self, date=None):
+    date = date or self.date
     # test for when we have an hour and minute: '30/04/2015 15:22'
-    if len(date.split(' ')) > 1:
-      date = datetime.strptime(date, '%d-%m-%Y %H:%M')
-      self.has_hour = True
-    else:
-      date = datetime.strptime(date, '%d-%m-%Y')
-    return date
+    # If the post had no time, don't use the default '00:00'
+    self.has_hour =  ' ' in date:
+    fmt = '%d-%m-%Y %H:%M' if self.has_hour else '%d-%m-%Y'
+    return date.strptime(fmt)
 
   def get_filename(self):
-    date = self.date.strftime('%d-%m-%Y')
-    filename = u'{date}-{slug}.{ext}'.format(date=date, slug=self.slug, ext='markdown')
-    return filename
-    
+    return '{:%d-%m-%Y}-{}.markdown'.format(self.date, self.slug)
+
   def get_date(self):
-    if self.has_hour is True:
-      date = self.date.strftime('%d-%m-%Y %H:%M')
-    # If the post had no time, don't use the default '00:00'
-    else:
-      date = self.date.strftime('%d-%m-%Y')
-    return date
-    
-    
+    return self._parse_date()
+
   def prepare_post(self):
     date = self.get_date()
-  
-    post = u"""title: {0}
-date: {1}
-slug: {2}
+    return """title: {}
+date: {}
+slug: {}
 ====
-{3}
+{}
 """.format(self.title, date, self.slug, self.content)
-    return post
     
-def read(path):
-  with io.open('{}'.format(path), mode='r', encoding='utf_8') as f:
-    return f.read().decode('utf8')
+def read_file(file_path):
+  with io.open(file_path, mode='r', encoding='utf_8') as in_file:
+    return in_file.read().decode('utf8')
 
-def write(path, filename, content):
+def write_file(path, filename, content):
   make_dirs(path)
-  with io.open(os.path.join(path, filename), mode='w', encoding='utf_8') as f:
-    f.write(content)
+  with io.open(os.path.join(path, filename), mode='w', encoding='utf_8') as out_file:
+    out_file.write(content)
       
 def make_dirs(path):
   # If the destination dir(s) don't already exist, create them
-  if os.path.isdir(path):
-    return True
-  else:
+  if not os.path.isdir(path):
     os.makedirs(path)
-    return True
+  return True
   
 def get_all_files(path):
   files = []
   for filename in os.listdir(path):
     # Without this check, we try to 'read' directories
     if os.path.isfile(os.path.join(path, filename)):
-      file = read(os.path.join(path, filename))
+      file = read_file(os.path.join(path, filename))
       files.append(file)
   return files
 
 def get_metadata(line, prefix):
-  
   if line.startswith(prefix):
-    
     # title: Long title here! -> ['Long', 'title', ... ] -> 'Long title ...'
-    line = line.split(' ')[1:]
-    line = ' '.join(line)
-    
+    line = ' '.join(line.split()[1:])
     # We don't want an empty string
     if line:
-      return line 
+    return line
   return False
-    
+
 def get_post_dict(post):
   """Reads an existing post and returns a dictionary.
   { title, date, slug, post }"""
@@ -115,17 +96,16 @@ def get_post_dict(post):
       
       if data:
         post_dict[prefix] = data
-        
         # We got what we came for
         break
-        
+
     if line.startswith('===='):
       post_start = post.index('====') + 5
       post_dict['content'] = post[post_start:]
       break
 
   # We need at least a title, slug, and post. We can make the date.
-  if post_dict.get('title') and post_dict.get('slug') and post_dict.get('content'):
+  if 'title' in post_dict and 'slug' in post_dict and 'content' in post_dict:
     return post_dict
   else:
     return False
@@ -133,8 +113,7 @@ def get_post_dict(post):
 def get_post(post_text):
   p = get_post_dict(post_text)
   if p:
-    post = blog_post(title=p['title'], content=p['content'], date=p['date'], slug=p['slug'])
-    return post
+    return blog_post(title=p['title'], content=p['content'], date=p['date'], slug=p['slug'])
   else:
     return False
 
@@ -165,17 +144,16 @@ def build_site():
     post = get_post(file)
     post_html = template.make_post(post)
     path = os.path.join(OUTPUT_DIR, '{}/'.format(post.slug))
-    filename = u'index.html'
-    write(path, filename, post_html)
+    filename = 'index.html'
+    write_file(path, filename, post_html)
     # We need to pass the post objects to get_index
     posts.append(post)
   
   # Get and write index.html
-  index = template.get_index(posts)
-  index = index.decode('utf8')
+  index = template.get_index(posts).decode('utf8')
   # print repr(index)
   # print 'in build site, type of index: {}'.format(type(index))
-  write(OUTPUT_DIR, u'index.html', index)
+  write(OUTPUT_DIR, 'index.html', index)
   
   # Copy static resources
   css_dir = os.path.join(STATIC_DIR, 'css/')
@@ -186,20 +164,19 @@ def build_site():
     # Make sure we're working on a file
     if os.path.isfile(source):
       # Make all the dirs up to '/output/css' if needed
-      if os.path.isdir(dest) is False:
+      if not os.path.isdir(dest):
         os.makedirs(dest)
       shutil.copy(source, dest)
-  
-  
+
 def clean_site():
   print 'TODO'
-    
-def main(filename, command, *args):
+
+def main(command, *args):
   if command == 'build':
     build_site()
-  if command == 'clean':
+  elif command == 'clean':
     clean_site()
-  if command == 'add':
+  elif command == 'add':
     post = clipboard.get()
     if post:
       # It's already unicode, so no need to decode
@@ -208,18 +185,15 @@ def main(filename, command, *args):
     else:
       print 'Nothing on clipboard'
       webbrowser.open('editorial://workflow-callback/?success=False')
-  if command == 'help':
+  elif command == 'help':
     print """Blok is a small static site generator.
-    
+
     Arguments:
       help    - this help.
       add     - add a blog post. Input is the text of a blog post in markdown on the clipboard
       build   - write all posts in posts/ dir to site/ as html files, and create index.html
       clean   - deletes all files and directories from the output dir"""
-    
+
 if __name__ == '__main__':
   # if we have at least a command
-  if len(argv) > 1:
-    main(*argv)
-  else:
-    main(command='help', *argv)
+  main(argv[1:] or 'help')
