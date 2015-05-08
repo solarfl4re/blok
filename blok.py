@@ -223,11 +223,3 @@ if __name__ == '__main__':
     main(*argv)
   else:
     main(command='help', *argv)
-  
-  
-
-post = u'title: Test\nslug: test-post\n\n====\nПроверка'
-post_dict = get_post_dict(post)
-# filename = get_filename(post_dict)
-
-# create_post(post)
