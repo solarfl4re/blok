@@ -153,7 +153,7 @@ def build_site():
   index = template.get_index(posts).decode('utf8')
   # print repr(index)
   # print 'in build site, type of index: {}'.format(type(index))
-  write(OUTPUT_DIR, 'index.html', index)
+  write_file(OUTPUT_DIR, 'index.html', index)
   
   # Copy static resources
   css_dir = os.path.join(STATIC_DIR, 'css/')
