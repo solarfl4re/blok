@@ -32,7 +32,7 @@ class blog_post():
     date = date or self.date
     # test for when we have an hour and minute: '30/04/2015 15:22'
     # If the post had no time, don't use the default '00:00'
-    self.has_hour =  ' ' in date:
+    self.has_hour = ' ' in date
     fmt = '%d-%m-%Y %H:%M' if self.has_hour else '%d-%m-%Y'
     return date.strptime(fmt)
 
