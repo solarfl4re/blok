@@ -169,7 +169,7 @@ def build_site():
       shutil.copy(source, dest)
 
 def clean_site():
-  print 'TODO'
+  print('TODO')
 
 def main(command, *args):
   if command == 'build':
@@ -183,16 +183,16 @@ def main(command, *args):
       success = create_post(post)
       webbrowser.open('editorial://workflow-callback/?success={}'.format(success))
     else:
-      print 'Nothing on clipboard'
+      print('Nothing on clipboard')
       webbrowser.open('editorial://workflow-callback/?success=False')
   elif command == 'help':
-    print """Blok is a small static site generator.
+    print("""Blok is a small static site generator.
 
     Arguments:
       help    - this help.
       add     - add a blog post. Input is the text of a blog post in markdown on the clipboard
       build   - write all posts in posts/ dir to site/ as html files, and create index.html
-      clean   - deletes all files and directories from the output dir"""
+      clean   - deletes all files and directories from the output dir""")
 
 if __name__ == '__main__':
   # if we have at least a command
