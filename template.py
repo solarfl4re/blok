@@ -18,6 +18,11 @@ BASE = u"""<!DOCTYPE html>
       $head
   </head>
   <body>
+    <div class="flag">
+      <div class="blog_title">
+        <span class="title_text"><a style="color: inherit; text-decoration: none;" href="/">0x38b</a></span>
+      </div>
+    </div>
     <div class='content'>
       $content
     </div>
@@ -25,10 +30,10 @@ BASE = u"""<!DOCTYPE html>
 </html>
 """
 
-POST = u"""<h1 class='post_title'>$title</h1>
-<div class='post_content'>
+POST = u"""<h1 class='post_title'>$title</h2>
+<article>
 $post
-</div>
+</article>
 """
 
 INDEX = u"""<div class='post_index'>
@@ -68,8 +73,8 @@ def make_post(post):
 def get_index(posts):
   links = []
   for post in posts:
-    date = post.get_date()
-    link = u'<li>' + u'<a href="/{slug}/">{date} - {title}</a>'.format(slug=post.slug, date=date, title=post.title) + u'</li>'
+    date = post.date
+    link = u'<li>' + u'<a href="/{slug}/">{date:%d/%m/%Y} - {title}</a>'.format(slug=post.slug, date=date, title=post.title) + u'</li>'
     links.append(link)
   t = Template(INDEX)
   index = t.substitute(links='\n'.join(links))

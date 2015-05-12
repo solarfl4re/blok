@@ -26,21 +26,24 @@ class blog_post():
     self.content = content
     self.slug = slug
     self.has_hour = False
-    self.date = self._parse_date(date) if date else datetime.today()
+    if date is not None:
+      self.date = self._parse_date(date)
+    else:
+      self.date = datetime.today()
 
-  def _parse_date(self, date=None):
-    date = date or self.date
-    # test for when we have an hour and minute: '30/04/2015 15:22'
-    # If the post had no time, don't use the default '00:00'
-    self.has_hour = ' ' in date
-    fmt = '%d-%m-%Y %H:%M' if self.has_hour else '%d-%m-%Y'
-    return date.strptime(fmt)
+  def _parse_date(self, date):
+    # Parse a date like '30/04/2015 15:22', with or without the hour
+    # If the post had a time, set has_hour; otherwise, don't use the time
+    if ' ' in date:
+      self.has_hour = True
+      fmt = '%d-%m-%Y %H:%M'
+    else:
+      self.has_hour = False
+      fmt = '%d-%m-%Y'
+    return datetime.strptime(date, fmt)
 
   def get_filename(self):
     return '{:%d-%m-%Y}-{}.markdown'.format(self.date, self.slug)
-
-  def get_date(self):
-    return self._parse_date()
 
   def prepare_post(self):
     date = self.get_date()
